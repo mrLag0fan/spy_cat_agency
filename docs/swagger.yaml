@@ -1,0 +1,514 @@
+definitions:
+  model.Mission:
+    properties:
+      cat_id:
+        type: integer
+      completed:
+        type: boolean
+      id:
+        type: integer
+      targets:
+        items:
+          $ref: '#/definitions/model.Target'
+        type: array
+    type: object
+  model.NoteUpdate:
+    properties:
+      notes:
+        type: string
+    type: object
+  model.SalaryUpdate:
+    properties:
+      salary:
+        type: number
+    type: object
+  model.SpyCat:
+    properties:
+      breed:
+        type: string
+      experience_in_years:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      salary:
+        type: number
+    type: object
+  model.Target:
+    properties:
+      complete:
+        type: boolean
+      country:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      notes:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /cat:
+    get:
+      description: Get a list of all cats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.SpyCat'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all cats
+      tags:
+      - cats
+  /cat/{id}:
+    delete:
+      description: Delete a spy cat by its ID
+      parameters:
+      - description: Cat ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Cat deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid cat ID
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to delete cat
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a spy cat
+      tags:
+      - cats
+    get:
+      description: Get a single spy cat by its ID
+      parameters:
+      - description: Cat ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SpyCat'
+        "400":
+          description: Invalid cat ID
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Cat not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a single spy cat by ID
+      tags:
+      - cats
+  /cat/{id}/salary:
+    put:
+      description: Update the salary of a spy cat by its ID
+      parameters:
+      - description: Cat ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Salary data
+        in: body
+        name: salary
+        required: true
+        schema:
+          $ref: '#/definitions/model.SalaryUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Salary updated successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid cat ID or request body
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to update salary
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update cat's salary
+      tags:
+      - cats
+  /cats:
+    post:
+      consumes:
+      - application/json
+      description: Create a new cat in the system
+      parameters:
+      - description: Cat to add
+        in: body
+        name: cat
+        required: true
+        schema:
+          $ref: '#/definitions/model.SpyCat'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.SpyCat'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new cat
+      tags:
+      - cats
+  /mission:
+    get:
+      description: Retrieves a list of all missions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of missions
+          schema:
+            items:
+              $ref: '#/definitions/model.Mission'
+            type: array
+        "500":
+          description: Failed to retrieve missions
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all missions
+      tags:
+      - missions
+    post:
+      consumes:
+      - application/json
+      description: Create a new mission and its associated targets
+      parameters:
+      - description: Mission details with targets
+        in: body
+        name: mission
+        required: true
+        schema:
+          $ref: '#/definitions/model.Mission'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Mission created successfully
+          schema:
+            $ref: '#/definitions/model.Mission'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to create mission
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a mission with targets
+      tags:
+      - missions
+  /mission/{id}:
+    delete:
+      description: Delete a mission, but only if it's not assigned to a cat. Returns
+        an error if the mission is assigned to a cat.
+      parameters:
+      - description: Mission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Mission deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid mission ID
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to delete mission
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a mission (only if it’s not assigned to a cat)
+      tags:
+      - missions
+    get:
+      description: Retrieves a mission by its ID
+      parameters:
+      - description: Mission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Mission details
+          schema:
+            $ref: '#/definitions/model.Mission'
+        "400":
+          description: Invalid mission ID
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Mission not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a single mission by ID
+      tags:
+      - missions
+  /mission/{id}/assign-cat:
+    post:
+      description: Assigns a specified cat to an existing mission by its ID.
+      parameters:
+      - description: Mission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Cat ID
+        in: body
+        name: cat_id
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Cat assigned to mission
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body or mission ID
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to assign cat
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Assign a cat to a mission
+      tags:
+      - missions
+  /mission/{id}/complete:
+    put:
+      description: Mark a mission as completed in the system.
+      parameters:
+      - description: Mission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Mission marked as complete
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid mission ID
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to complete mission
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Mark a mission as complete
+      tags:
+      - missions
+  /mission/{id}/targets:
+    post:
+      description: Adds a new target to a specified mission by its ID.
+      parameters:
+      - description: Mission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Target to add
+        in: body
+        name: target
+        required: true
+        schema:
+          $ref: '#/definitions/model.Target'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Target added successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid mission ID
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to add target
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a target to an existing mission
+      tags:
+      - missions
+  /mission/targets/{target_id}:
+    delete:
+      description: Deletes a specified target from a mission by its ID.
+      parameters:
+      - description: Target ID
+        in: path
+        name: target_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Target deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid target ID
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to delete target
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a target from a mission
+      tags:
+      - missions
+  /mission/targets/{target_id}/complete:
+    put:
+      description: Marks a specified mission target as complete if found.
+      parameters:
+      - description: Target ID
+        in: path
+        name: target_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Target marked as complete
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid target ID
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Target not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Mark a mission target as complete
+      tags:
+      - missions
+  /mission/targets/{target_id}/notes:
+    put:
+      description: Update the notes for a mission target if it has not been marked
+        as complete.
+      parameters:
+      - description: Target ID
+        in: path
+        name: target_id
+        required: true
+        type: integer
+      - description: Updated notes
+        in: body
+        name: notes
+        required: true
+        schema:
+          $ref: '#/definitions/model.NoteUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notes updated successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid target ID or request body
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to update notes
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update notes for a target (only if not completed)
+      tags:
+      - missions
+swagger: "2.0"
